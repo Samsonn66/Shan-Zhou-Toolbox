@@ -40,6 +40,7 @@ export interface Weapon {
   traits: string[];
   description: string;
   bulk: string;
+  equipped?: boolean;
 }
 
 export interface Armor {
@@ -51,6 +52,7 @@ export interface Armor {
   traits: string[];
   description: string;
   bulk: string;
+  equipped?: boolean;
 }
 
 export interface Gear {
@@ -58,6 +60,7 @@ export interface Gear {
   name: string;
   description: string;
   bulk: string;
+  equipped?: boolean;
 }
 
 export interface Equipment {
@@ -94,9 +97,21 @@ export interface CharacterAction {
   description: string;
 }
 
+export interface GameTime {
+  seconds: number;
+  minutes: number;
+  hours: number;
+  days: number;
+  months: number;
+  years: number;
+  weather?: string;
+  weatherRoll?: number;
+}
+
 export interface FullCharacter {
   id: string;
   name: string;
+  title: string;
   level: number;
   ancestry: string;
   heritage: string;
@@ -111,6 +126,7 @@ export interface FullCharacter {
   notes: string;
   actions: CharacterAction[];
   heroPoints: number;
+  destinyPoints: number;
   headerStatus: string;
   sheetLocked: boolean;
   mainLayout?: string[]; // Order of keys: 'stats', 'ancestry', 'background', 'class', 'traits'
@@ -121,5 +137,6 @@ export interface AppendixEntry {
   id: string;
   title: string;
   content: string;
+  category: 'Ancestry' | 'Background' | 'Class' | 'Feats' | 'Lore' | 'Places' | 'People' | 'Factions' | 'Government';
   timestamp: number;
 }

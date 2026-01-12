@@ -14,6 +14,7 @@ type TabType = 'main' | 'combat' | 'skills' | 'abilities' | 'inventory' | 'notes
 const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) => {
   const [activeTab, setActiveTab] = useState<TabType>('main');
   const [actionSearch, setActionSearch] = useState("");
+  const [actionCost, setActionCost] = useState<number>(1);
   const [loadingAction, setLoadingAction] = useState(false);
   const dragItem = useRef<string | null>(null);
 
@@ -23,7 +24,7 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
   const isLocked = character.sheetLocked;
   // Ensure 'portrait' is included in the layout keys if not present
   const layout = useMemo(() => {
-    const baseLayout = character.mainLayout || ['stats', 'ancestry', 'background', 'class', 'traits'];
+    const baseLayout = character.mainLayout || ['ancestry', 'background', 'class', 'traits', 'stats'];
     if (!baseLayout.includes('portrait')) {
       return [...baseLayout, 'portrait'];
     }
@@ -96,7 +97,9 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
       const details = await GeminiService.getActionDetails(actionSearch);
       const newAction: CharacterAction = {
         id: Math.random().toString(36).substr(2, 9),
-        ...details
+        ...details,
+        // Override cost if details from AI are missing or if user specifically selected one
+        cost: details.cost || actionCost 
       };
       onUpdate({ ...character, actions: [...(character.actions || []), newAction] });
       setActionSearch("");
@@ -117,9 +120,14 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
     onUpdate({ ...character, heroPoints: Math.max(0, (character.heroPoints || 0) + val) });
   };
 
-  const updateHeaderStatus = (status: string) => {
+  const updateDestinyPoints = (val: number) => {
     if (!onUpdate) return;
-    onUpdate({ ...character, headerStatus: status });
+    onUpdate({ ...character, destinyPoints: Math.max(0, (character.destinyPoints || 0) + val) });
+  };
+
+  const updateTitle = (title: string) => {
+    if (!onUpdate) return;
+    onUpdate({ ...character, title });
   };
 
   const updateCharacterName = (name: string) => {
@@ -180,6 +188,10 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
     onUpdate({ ...character, mainLayout: newLayout });
   };
 
+  const handleLoreLink = (query: string) => {
+    alert(`Searching Appendix for: ${query}. Open Lore tab to see detailed world archives.`);
+  };
+
   const renderWidget = (key: string) => {
     const commonStyles = `bg-[#1a1a1a] border border-[#333] p-6 rounded-lg shadow-inner group hover:border-[#d4af3744] transition-colors relative flex flex-col w-full ${!isLocked ? 'cursor-move border-dashed border-[#d4af3755] resize overflow-auto min-h-[100px]' : ''}`;
     
@@ -202,7 +214,7 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
             {dragHandle}
             <div className="flex justify-between items-start mb-4">
               <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Ability Scores</h4>
-              <a href="#" className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</a>
+              <button onClick={() => handleLoreLink('Ability Checks')} className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</button>
             </div>
             <div className="space-y-2">
               {Object.entries(character.stats).map(([stat, score]) => (
@@ -229,7 +241,7 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
             {dragHandle}
             <div className="flex justify-between items-start mb-2">
               <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Ancestry / Heritage</h4>
-              <a href="#" className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</a>
+              <button onClick={() => handleLoreLink(character.ancestry)} className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</button>
             </div>
             <div className="text-xl font-bold serif text-white">
               {character.ancestry || "---"} 
@@ -249,7 +261,7 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
             {dragHandle}
             <div className="flex justify-between items-start mb-2">
               <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Background</h4>
-              <a href="#" className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</a>
+              <button onClick={() => handleLoreLink(character.background)} className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</button>
             </div>
             <div className="text-xl font-bold serif text-white">
               {character.background || "No Background Selected"}
@@ -268,7 +280,7 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
             {dragHandle}
             <div className="flex justify-between items-start mb-2">
               <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Class / Level</h4>
-              <a href="#" className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</a>
+              <button onClick={() => handleLoreLink(character.class)} className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</button>
             </div>
             <div className="text-xl font-bold serif text-white">
               <span className="text-[#d4af37]">LVL {character.level}</span> {character.class || "No Class Selected"}
@@ -287,7 +299,7 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
             {dragHandle}
             <div className="flex justify-between items-start mb-2">
               <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-widest">Traits</h4>
-              <a href="#" className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</a>
+              <button onClick={() => handleLoreLink('Traits')} className="text-[10px] font-black uppercase text-[#d4af37] hover:underline">Link</button>
             </div>
             <div className="flex flex-wrap gap-2">
               {character.ancestry && (
@@ -537,22 +549,41 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
           <div className="space-y-6 animate-in fade-in duration-300">
             <h3 className="text-[10px] font-black uppercase text-[#d4af37] tracking-[0.2em] mb-4 border-b border-[#333] pb-2">Actions & Reactions</h3>
             
-            <div className="flex gap-2">
-              <input 
-                type="text" 
-                placeholder="Search for a PF2e action (e.g. Tumble Behind, Grapple)..."
-                className="flex-1 bg-black/20 border border-[#333] p-3 rounded text-xs focus:outline-none focus:border-[#d4af37]"
-                value={actionSearch}
-                onChange={(e) => setActionSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addAction()}
-              />
-              <button 
-                onClick={addAction} 
-                disabled={loadingAction || !actionSearch}
-                className="bg-[#d4af37] text-black px-4 rounded font-bold text-[10px] uppercase disabled:opacity-50"
-              >
-                {loadingAction ? '...' : 'Add'}
-              </button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Search for a PF2e action (e.g. Tumble Behind, Grapple)..."
+                  className="flex-1 bg-black/20 border border-[#333] p-3 rounded text-xs focus:outline-none focus:border-[#d4af37]"
+                  value={actionSearch}
+                  onChange={(e) => setActionSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addAction()}
+                />
+                
+                <div className="flex items-center gap-1.5 bg-black/40 p-1.5 rounded border border-[#333]">
+                  <span className="text-[8px] font-black text-gray-600 uppercase mr-1">Cost:</span>
+                  {[1, 2, 3].map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => setActionCost(num)}
+                      className={`w-8 h-8 rounded text-[10px] font-black transition-all ${
+                        actionCost === num ? 'bg-[#d4af37] text-black shadow-lg' : 'text-gray-500 hover:text-gray-300'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={addAction} 
+                  disabled={loadingAction || !actionSearch}
+                  className="bg-[#d4af37] text-black px-4 rounded font-bold text-[10px] uppercase disabled:opacity-50 transition-all hover:bg-[#c19b2e]"
+                >
+                  {loadingAction ? '...' : 'Add'}
+                </button>
+              </div>
+              <p className="text-[8px] text-gray-600 font-bold uppercase tracking-widest italic ml-1">AI search will favor your selected action cost if no specific rule exists.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -617,21 +648,26 @@ const CharacterSheetModal: React.FC<Props> = ({ character, onUpdate, onClose }) 
                 placeholder="UNNAMED HERO"
                 className="bg-transparent text-black font-black text-2xl serif leading-none uppercase tracking-tight focus:outline-none border-b border-transparent focus:border-black/20 w-full md:w-80"
               />
-              <p className="text-black text-[11px] font-bold uppercase tracking-[0.15em] mt-1 opacity-70">
-                LEVEL {character.level} • {character.ancestry || "???"} {character.class || "???"}
-              </p>
+              <input
+                type="text"
+                value={character.title || ""}
+                onChange={(e) => updateTitle(e.target.value)}
+                placeholder="CHARACTER TITLE"
+                className="bg-transparent text-black text-[11px] font-bold uppercase tracking-[0.15em] mt-1 opacity-70 focus:outline-none border-b border-transparent focus:border-black/20"
+              />
             </div>
           </div>
           
           <div className="flex items-center gap-4">
              <div className="flex flex-col items-end gap-1">
-                <input 
-                  type="text"
-                  placeholder="STATUS / NOTES"
-                  value={character.headerStatus || ""}
-                  onChange={(e) => updateHeaderStatus(e.target.value)}
-                  className="bg-black/10 border-b border-black/10 text-[10px] font-black text-black text-right uppercase focus:outline-none placeholder:text-black/30 px-1 py-0.5"
-                />
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-black text-black/50 uppercase">Destiny Points</span>
+                  <div className="flex items-center bg-black/10 rounded px-2 py-0.5 border border-black/5">
+                    <button onClick={() => updateDestinyPoints(-1)} className="text-black font-black px-1 hover:text-white transition-colors">-</button>
+                    <span className="mx-2 text-sm font-black text-black">{character.destinyPoints || 0}</span>
+                    <button onClick={() => updateDestinyPoints(1)} className="text-black font-black px-1 hover:text-white transition-colors">+</button>
+                  </div>
+                </div>
                 <div className="flex items-center gap-3">
                   <span className="text-[10px] font-black text-black/50 uppercase">Hero Points</span>
                   <div className="flex items-center bg-black/10 rounded px-2 py-0.5 border border-black/5">

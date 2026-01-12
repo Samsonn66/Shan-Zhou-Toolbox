@@ -2,8 +2,17 @@
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { ImageSize } from '../types';
 
-// Manual implementation of base64 decoding for PCM audio and image processing
-function decode(base64: string): Uint8Array {
+// Manual implementation of base64 encoding/decoding as required by the Live API rules
+export function encode(bytes: Uint8Array) {
+  let binary = '';
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+export function decode(base64: string): Uint8Array {
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
@@ -13,7 +22,6 @@ function decode(base64: string): Uint8Array {
   return bytes;
 }
 
-// Exported for component use to handle raw PCM streams from Gemini
 export async function decodeAudioData(
   data: Uint8Array,
   ctx: AudioContext,
@@ -33,8 +41,12 @@ export async function decodeAudioData(
 }
 
 export const GeminiService = {
+  getAiInstance() {
+    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  },
+
   async getQuickResponse(prompt: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
@@ -43,7 +55,7 @@ export const GeminiService = {
   },
 
   async getThinkerResponse(prompt: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
       contents: prompt,
@@ -55,7 +67,7 @@ export const GeminiService = {
   },
 
   async askOracleWithAudio(audioBase64: string, mimeType: string, bias: string = ""): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: {
@@ -76,7 +88,7 @@ export const GeminiService = {
   },
 
   async getSpellDetails(spellName: string): Promise<any> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Provide PF2e spell details for "${spellName}" in JSON format.`,
@@ -99,7 +111,7 @@ export const GeminiService = {
   },
 
   async getFeatDetails(featName: string): Promise<any> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Provide PF2e feat details for "${featName}" in JSON format.`,
@@ -122,7 +134,7 @@ export const GeminiService = {
   },
 
   async getActionDetails(actionName: string): Promise<any> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Provide PF2e action details for "${actionName}" in JSON format.`,
@@ -145,7 +157,7 @@ export const GeminiService = {
   },
 
   async getEquipmentDetails(itemName: string, type: 'Weapon' | 'Armor' | 'Gear'): Promise<any> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Provide PF2e ${type} details for "${itemName}" in JSON format.`,
@@ -178,7 +190,7 @@ export const GeminiService = {
   },
 
   async getSelectionPreview(type: 'Ancestry' | 'Background' | 'Class' | 'Heritage' | 'Spell' | 'Weapon' | 'Armor' | 'Gear', selection: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Provide a detailed PF2e mechanical and lore summary for the ${type}: "${selection}". Include mechanical stats and descriptions in a clean, professional summary.`,
@@ -187,7 +199,7 @@ export const GeminiService = {
   },
 
   async generateImage(prompt: string, size: ImageSize): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const model = (size === ImageSize.S_2K || size === ImageSize.S_4K) 
       ? 'gemini-3-pro-image-preview' 
       : 'gemini-2.5-flash-image';
@@ -207,7 +219,7 @@ export const GeminiService = {
   },
 
   async editImage(imageUrl: string, prompt: string): Promise<string> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const [header, data] = imageUrl.split(',');
     const mimeType = header.split(':')[1].split(';')[0];
     
@@ -234,7 +246,7 @@ export const GeminiService = {
   },
 
   async speak(text: string): Promise<Uint8Array> {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = this.getAiInstance();
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text }] }],
