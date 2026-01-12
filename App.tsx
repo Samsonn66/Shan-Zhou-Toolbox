@@ -6,7 +6,7 @@ import LoreKeeper from './components/LoreKeeper';
 import CharacterBuilder from './components/CharacterBuilder';
 import Spellbook from './components/Spellbook';
 import CharacterSheetModal from './components/CharacterSheetModal';
-import { FullCharacter, AppendixEntry } from './types';
+import { FullCharacter, AppendixEntry, SkillEntry } from './types';
 
 export interface PinnedEntry {
   id: string;
@@ -16,6 +16,25 @@ export interface PinnedEntry {
 }
 
 const DEFAULT_STATS = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+
+const INITIAL_SKILLS: SkillEntry[] = [
+  { name: 'Acrobatics', rank: 0, ability: 'dex' },
+  { name: 'Arcana', rank: 0, ability: 'int' },
+  { name: 'Athletics', rank: 0, ability: 'str' },
+  { name: 'Crafting', rank: 0, ability: 'int' },
+  { name: 'Deception', rank: 0, ability: 'cha' },
+  { name: 'Diplomacy', rank: 0, ability: 'cha' },
+  { name: 'Intimidation', rank: 0, ability: 'cha' },
+  { name: 'Medicine', rank: 0, ability: 'wis' },
+  { name: 'Nature', rank: 0, ability: 'wis' },
+  { name: 'Occultism', rank: 0, ability: 'int' },
+  { name: 'Performance', rank: 0, ability: 'cha' },
+  { name: 'Religion', rank: 0, ability: 'wis' },
+  { name: 'Society', rank: 0, ability: 'int' },
+  { name: 'Stealth', rank: 0, ability: 'dex' },
+  { name: 'Survival', rank: 0, ability: 'wis' },
+  { name: 'Thievery', rank: 0, ability: 'dex' },
+];
 
 const createNewCharacter = (name: string = "New Hero"): FullCharacter => ({
   id: Math.random().toString(36).substr(2, 9),
@@ -32,7 +51,19 @@ const createNewCharacter = (name: string = "New Hero"): FullCharacter => ({
     weapons: [],
     armor: [],
     gear: []
-  }
+  },
+  wealth: {
+    qin: 0,
+    ling: 0,
+    yu: 0,
+    tian: 0,
+    huang: 0
+  },
+  skills: [...INITIAL_SKILLS],
+  notes: "",
+  actions: [],
+  heroPoints: 1,
+  headerStatus: ""
 });
 
 const App: React.FC = () => {
@@ -283,6 +314,7 @@ const App: React.FC = () => {
       {sheetChar && (
         <CharacterSheetModal 
           character={sheetChar} 
+          onUpdate={updateActiveChar}
           onClose={() => setSheetModalCharId(null)} 
         />
       )}

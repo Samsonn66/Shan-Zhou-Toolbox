@@ -163,11 +163,11 @@ const CharacterBuilder: React.FC<Props> = ({ character, onUpdate, pinnedEntries,
       
       const newEquipment = { ...character.equipment };
       if (activeEquipSubTab === 'weapons') {
-        newEquipment.weapons = [...newEquipment.weapons, { id, ...details }];
+        newEquipment.weapons = [...newEquipment.weapons, { id, ...details, bulk: details.bulk || "1" }];
       } else if (activeEquipSubTab === 'armor') {
-        newEquipment.armor = [...newEquipment.armor, { id, ...details }];
+        newEquipment.armor = [...newEquipment.armor, { id, ...details, bulk: details.bulk || "1" }];
       } else {
-        newEquipment.gear = [...newEquipment.gear, { id, ...details }];
+        newEquipment.gear = [...newEquipment.gear, { id, ...details, bulk: details.bulk || "L" }];
       }
 
       onUpdate({ ...character, equipment: newEquipment });
@@ -506,11 +506,9 @@ const CharacterBuilder: React.FC<Props> = ({ character, onUpdate, pinnedEntries,
                         </div>
                       )}
 
-                      {activeEquipSubTab === 'gear' && (
-                        <div className="mb-2">
-                          <span className="text-[9px] bg-black px-1.5 py-0.5 rounded text-gray-400 font-bold">BULK {item.bulk}</span>
-                        </div>
-                      )}
+                      <div className="mb-2">
+                        <span className="text-[9px] bg-black px-1.5 py-0.5 rounded text-gray-400 font-bold uppercase">BULK {item.bulk}</span>
+                      </div>
 
                       <p className="text-[10px] text-gray-300 line-clamp-2 leading-relaxed">{item.description}</p>
                     </div>

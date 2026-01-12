@@ -39,6 +39,7 @@ export interface Weapon {
   damage: string;
   traits: string[];
   description: string;
+  bulk: string;
 }
 
 export interface Armor {
@@ -49,6 +50,7 @@ export interface Armor {
   dexCap?: number;
   traits: string[];
   description: string;
+  bulk: string;
 }
 
 export interface Gear {
@@ -64,9 +66,32 @@ export interface Equipment {
   gear: Gear[];
 }
 
+export interface Wealth {
+  qin: number;   // cp equivalent
+  ling: number;  // sp equivalent
+  yu: number;    // gp equivalent
+  tian: number;  // 10gp equivalent
+  huang: number; // 100gp equivalent
+}
+
 export interface CharacterStats {
   str: number; dex: number; con: number;
   int: number; wis: number; cha: number;
+}
+
+export interface SkillEntry {
+  name: string;
+  rank: number; // 0: Untrained, 1: Trained, 2: Expert, 3: Master, 4: Legendary
+  ability: keyof CharacterStats;
+}
+
+export interface CharacterAction {
+  id: string;
+  name: string;
+  type: 'action' | 'reaction' | 'free' | 'exploration';
+  cost?: number; // 1, 2, 3 actions
+  traits: string[];
+  description: string;
 }
 
 export interface FullCharacter {
@@ -81,6 +106,12 @@ export interface FullCharacter {
   feats: Feat[];
   spells: Spell[];
   equipment: Equipment;
+  wealth: Wealth;
+  skills: SkillEntry[];
+  notes: string;
+  actions: CharacterAction[];
+  heroPoints: number;
+  headerStatus: string;
   portrait?: string; // Base64 encoded image string
 }
 

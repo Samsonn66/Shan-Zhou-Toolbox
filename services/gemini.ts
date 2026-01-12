@@ -121,6 +121,29 @@ export const GeminiService = {
     return JSON.parse(response.text || "{}");
   },
 
+  async getActionDetails(actionName: string): Promise<any> {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Provide PF2e action details for "${actionName}" in JSON format.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            type: { type: Type.STRING, description: "action, reaction, free, or exploration" },
+            cost: { type: Type.NUMBER, description: "Action cost (1, 2, or 3). Null for others." },
+            traits: { type: Type.ARRAY, items: { type: Type.STRING } },
+            description: { type: Type.STRING }
+          },
+          required: ["name", "type", "traits", "description"]
+        }
+      }
+    });
+    return JSON.parse(response.text || "{}");
+  },
+
   async getEquipmentDetails(itemName: string, type: 'Weapon' | 'Armor' | 'Gear'): Promise<any> {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
