@@ -1,0 +1,7 @@
+{
+  "name": "Copy of Shan' Zhou Solo Adventuring Toolbox",
+  "description": "A comprehensive PF2e solo adventuring companion featuring AI-powered oracle, encounter generation, image creation, and lore management.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
