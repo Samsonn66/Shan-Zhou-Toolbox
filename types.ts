@@ -112,6 +112,8 @@ export interface FullCharacter {
   actions: CharacterAction[];
   heroPoints: number;
   headerStatus: string;
+  sheetLocked: boolean;
+  mainLayout?: string[]; // Order of keys: 'stats', 'ancestry', 'background', 'class', 'traits'
   portrait?: string; // Base64 encoded image string
 }
 

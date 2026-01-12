@@ -63,7 +63,9 @@ const createNewCharacter = (name: string = "New Hero"): FullCharacter => ({
   notes: "",
   actions: [],
   heroPoints: 1,
-  headerStatus: ""
+  headerStatus: "",
+  sheetLocked: true,
+  mainLayout: ['stats', 'ancestry', 'background', 'class', 'traits']
 });
 
 const App: React.FC = () => {
