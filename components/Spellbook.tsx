@@ -65,7 +65,7 @@ const Spellbook: React.FC<Props> = ({ character, onUpdate }) => {
           <input 
             type="text" 
             placeholder="Search for a spell (e.g., Magic Missile)..."
-            className="flex-1 bg-[#121212] border border-[#333] p-3 rounded text-sm focus:outline-none focus:border-[#9b59b6]"
+            className="flex-1 bg-[#121212] border border-[#333] p-3 rounded text-sm focus:outline-none focus:border-[#9b59b6] transition-colors"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addSpell()}
@@ -73,7 +73,7 @@ const Spellbook: React.FC<Props> = ({ character, onUpdate }) => {
           <button 
             onClick={addSpell}
             disabled={loading}
-            className="bg-[#9b59b6] text-white px-6 py-2 rounded font-bold text-sm hover:bg-[#8e44ad] transition-colors disabled:opacity-50"
+            className="bg-[#9b59b6] text-white px-6 py-2 rounded font-bold text-sm hover:bg-[#8e44ad] transition-colors disabled:opacity-50 shadow-lg"
           >
             {loading ? 'Adding...' : 'Add Spell'}
           </button>
@@ -81,12 +81,12 @@ const Spellbook: React.FC<Props> = ({ character, onUpdate }) => {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Spell List */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 border-r border-[#333]">
+        {/* Spell List - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 border-r border-[#333] scrollbar-visible">
           {character.spells.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center opacity-30 text-center p-10">
               <span className="text-6xl mb-4">📖</span>
-              <p>Your spellbook is empty. Use the search above to add spells from the archives.</p>
+              <p className="text-sm italic">Your spellbook is empty. Search to find spells.</p>
             </div>
           )}
           
@@ -131,8 +131,8 @@ const Spellbook: React.FC<Props> = ({ character, onUpdate }) => {
           ))}
         </div>
 
-        {/* Side Preview Panel */}
-        <div className={`w-80 bg-[#121212] transition-all overflow-y-auto ${previewSpell ? 'translate-x-0' : 'translate-x-full absolute right-0'}`}>
+        {/* Side Preview Panel - Scrollable */}
+        <div className={`w-80 bg-[#121212] transition-all overflow-y-auto scrollbar-visible ${previewSpell ? 'translate-x-0' : 'translate-x-full absolute right-0'}`}>
           {previewSpell ? (
             <div className="p-6 space-y-4">
               <div className="flex justify-between items-start">
@@ -140,18 +140,18 @@ const Spellbook: React.FC<Props> = ({ character, onUpdate }) => {
                 <button onClick={() => setPreviewSpell(null)} className="text-gray-500 hover:text-white">✕</button>
               </div>
               <div className="flex flex-wrap gap-2">
-                 <span className="text-[10px] font-black bg-[#9b59b6] text-white px-2 py-0.5 rounded uppercase">LVL {previewSpell.level}</span>
-                 <span className="text-[10px] font-black bg-[#333] text-gray-400 px-2 py-0.5 rounded uppercase">{previewSpell.tradition}</span>
-                 <span className="text-[10px] font-black bg-[#333] text-gray-400 px-2 py-0.5 rounded uppercase">{previewSpell.actions}</span>
+                 <span className="text-[10px] font-black bg-[#9b59b6] text-white px-2 py-0.5 rounded uppercase tracking-wider">LVL {previewSpell.level}</span>
+                 <span className="text-[10px] font-black bg-[#333] text-gray-400 px-2 py-0.5 rounded uppercase tracking-wider">{previewSpell.tradition}</span>
+                 <span className="text-[10px] font-black bg-[#333] text-gray-400 px-2 py-0.5 rounded uppercase tracking-wider">{previewSpell.actions}</span>
               </div>
-              <div className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap border-t border-[#333] pt-4 italic">
+              <div className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap border-t border-[#222] pt-4 italic">
                 {previewSpell.description}
               </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-gray-700 p-10 text-center">
+            <div className="h-full flex flex-col items-center justify-center text-gray-700 p-10 text-center opacity-50">
               <span className="text-4xl mb-4">✨</span>
-              <p className="text-[10px] uppercase font-bold">Select a spell to view its full arcane transcription.</p>
+              <p className="text-[10px] uppercase font-bold tracking-widest leading-loose">Select a spell to view its full arcane transcription.</p>
             </div>
           )}
         </div>

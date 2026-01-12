@@ -32,6 +32,38 @@ export interface Feat {
   description: string;
 }
 
+export interface Weapon {
+  id: string;
+  name: string;
+  category: string;
+  damage: string;
+  traits: string[];
+  description: string;
+}
+
+export interface Armor {
+  id: string;
+  name: string;
+  category: string;
+  acBonus: number;
+  dexCap?: number;
+  traits: string[];
+  description: string;
+}
+
+export interface Gear {
+  id: string;
+  name: string;
+  description: string;
+  bulk: string;
+}
+
+export interface Equipment {
+  weapons: Weapon[];
+  armor: Armor[];
+  gear: Gear[];
+}
+
 export interface CharacterStats {
   str: number; dex: number; con: number;
   int: number; wis: number; cha: number;
@@ -48,4 +80,13 @@ export interface FullCharacter {
   stats: CharacterStats;
   feats: Feat[];
   spells: Spell[];
+  equipment: Equipment;
+  portrait?: string; // Base64 encoded image string
+}
+
+export interface AppendixEntry {
+  id: string;
+  title: string;
+  content: string;
+  timestamp: number;
 }

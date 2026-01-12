@@ -121,11 +121,44 @@ export const GeminiService = {
     return JSON.parse(response.text || "{}");
   },
 
-  async getSelectionPreview(type: 'Ancestry' | 'Background' | 'Class' | 'Heritage' | 'Spell', selection: string): Promise<string> {
+  async getEquipmentDetails(itemName: string, type: 'Weapon' | 'Armor' | 'Gear'): Promise<any> {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Provide a detailed PF2e mechanical and lore summary for the ${type}: "${selection}". Include typical ability boosts, HP, and special features in a clean, professional summary. If it is a Spell, include Level, Tradition, Actions, and a concise mechanical effect description.`,
+      contents: `Provide PF2e ${type} details for "${itemName}" in JSON format.`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            category: { type: Type.STRING },
+            description: { type: Type.STRING },
+            ...(type === 'Weapon' ? {
+              damage: { type: Type.STRING },
+              traits: { type: Type.ARRAY, items: { type: Type.STRING } }
+            } : {}),
+            ...(type === 'Armor' ? {
+              acBonus: { type: Type.NUMBER },
+              dexCap: { type: Type.NUMBER },
+              traits: { type: Type.ARRAY, items: { type: Type.STRING } }
+            } : {}),
+            ...(type === 'Gear' ? {
+              bulk: { type: Type.STRING }
+            } : {})
+          },
+          required: ["name", "category", "description"]
+        }
+      }
+    });
+    return JSON.parse(response.text || "{}");
+  },
+
+  async getSelectionPreview(type: 'Ancestry' | 'Background' | 'Class' | 'Heritage' | 'Spell' | 'Weapon' | 'Armor' | 'Gear', selection: string): Promise<string> {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Provide a detailed PF2e mechanical and lore summary for the ${type}: "${selection}". Include mechanical stats and descriptions in a clean, professional summary.`,
     });
     return response.text || "No preview available.";
   },
